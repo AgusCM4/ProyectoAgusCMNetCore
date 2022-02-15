@@ -11,14 +11,6 @@ namespace ProyectoAgusCMNetCore.Data
     {
         public MainContext(DbContextOptions<MainContext> options) : base(options) { }
 
-        public DbSet<Profile> Profile { get; set; }
-
         public DbSet<User> Users { get; set; }
-
-        public DbSet<Post> Posts { get; set; }
-
-        public DbSet<Country> Countries { get; set; }
-
-        public DbSet<Comment> Comments { get; set; }
     }
 }

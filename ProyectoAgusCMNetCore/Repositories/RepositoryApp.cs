@@ -1,4 +1,5 @@
 ﻿using ProyectoAgusCMNetCore.Data;
+using ProyectoAgusCMNetCore.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,46 @@ namespace ProyectoAgusCMNetCore.Repositories
         public RepositoryApp(MainContext context)
         {
             this.context = context;
+        }
+
+        public List<User> GetUsers()
+        {
+            var consulta = from datos in this.context.Users select datos;
+
+            return consulta.ToList();
+        }
+
+        public void CreateUser(string nombre, string apellidos,string username, string usermail, string password)
+        {
+            User user = new User();
+            user.Userid = GetLastUserId();
+            user.Name = nombre;
+            user.LastName = apellidos;
+            user.UserName = username;
+            user.Email = usermail;
+            user.Password = password;
+            user.Admin = false;
+            user.CreatedAt = DateTime.Now;
+            //
+            this.context.Users.Add(user);
+            this.context.SaveChanges();
+        }
+
+        private int GetLastUserId()
+        {
+            var consulta = (from datos in this.context.Users select datos).LastOrDefault();
+
+            if (consulta==null)
+            {
+                return 1;
+            }
+
+            int id = consulta.Userid;
+
+            
+
+            return id + 1;
+
         }
     }
 }

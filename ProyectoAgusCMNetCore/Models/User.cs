@@ -29,9 +29,6 @@ namespace ProyectoAgusCMNetCore.Models
         [Column("password")]
         public string Password { get; set; }
 
-        [Column("user_code")]
-        public string UserCode { get; set; }
-
         [Column("is_admin")]
         public bool Admin { get; set; }
 
