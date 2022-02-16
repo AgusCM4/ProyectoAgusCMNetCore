@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using ProyectoAgusCMNetCore.Models;
 using ProyectoAgusCMNetCore.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ProyectoAgusCMNetCore.Controllers
@@ -23,9 +27,30 @@ namespace ProyectoAgusCMNetCore.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> LogIn(string correo, string password)
+        public async Task<IActionResult> LogIn(string username, string password)
         {
-            return RedirectToAction("Index", "Users");
+            User usu = this.repo.ExisteUser(username,password);
+
+            if (usu != null)
+            {
+                ClaimsIdentity identity =new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+                Claim claimName = new Claim(ClaimTypes.Name, usu.Name);
+                identity.AddClaim(claimName);
+                Claim claimId =new Claim(ClaimTypes.NameIdentifier, usu.Userid.ToString());
+                Claim claimRole =new Claim(ClaimTypes.Role, usu.Groups);
+                identity.AddClaim(claimId);
+                identity.AddClaim(claimRole);
+                ClaimsPrincipal userPrincipal = new ClaimsPrincipal(identity);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
+                return RedirectToAction("Index", "Users");
+            }
+            else
+            {
+                ViewData["MENSAJE"] = "Usuario/Password incorrectos";
+            }
+            return View();
+
+
         }
 
         public IActionResult Register()

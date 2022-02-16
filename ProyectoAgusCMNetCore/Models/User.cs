@@ -34,5 +34,8 @@ namespace ProyectoAgusCMNetCore.Models
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
+
+        [Column("groups")]
+        public string Groups { get; set; }
     }
 }

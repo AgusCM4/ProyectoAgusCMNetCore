@@ -23,7 +23,7 @@ namespace ProyectoAgusCMNetCore.Repositories
             return consulta.ToList();
         }
 
-        public void CreateUser(string nombre, string apellidos,string username, string usermail, string password)
+        public void CreateUser(string nombre, string apellidos, string username, string usermail, string password)
         {
             User user = new User();
             user.Userid = GetLastUserId();
@@ -34,6 +34,7 @@ namespace ProyectoAgusCMNetCore.Repositories
             user.Password = password;
             user.Admin = false;
             user.CreatedAt = DateTime.Now;
+            user.Groups = "1";
             //
             this.context.Users.Add(user);
             this.context.SaveChanges();
@@ -41,19 +42,23 @@ namespace ProyectoAgusCMNetCore.Repositories
 
         private int GetLastUserId()
         {
-            var consulta = (from datos in this.context.Users select datos).LastOrDefault();
+            var consulta = (from datos in this.context.Users select datos).OrderBy(x=>x.Userid).LastOrDefault();
 
-            if (consulta==null)
+            if (consulta == null)
             {
                 return 1;
             }
 
             int id = consulta.Userid;
 
-            
-
             return id + 1;
+        }
 
+        public User ExisteUser(string username, string password)
+        {
+            var consulta = from datos in this.context.Users where datos.UserName == username && datos.Password == password select datos;
+
+            return consulta.FirstOrDefault();
         }
     }
 }

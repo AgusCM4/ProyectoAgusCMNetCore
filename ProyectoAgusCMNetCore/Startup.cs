@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -27,11 +28,19 @@ namespace ProyectoAgusCMNetCore
         public void ConfigureServices(IServiceCollection services)
         {
             string cadenaconexion = this.Configuration.GetConnectionString("cadenaAzure");
-
             services.AddTransient<RepositoryApp>();
             services.AddDbContext<MainContext>(options=>options.UseSqlServer(cadenaconexion));
 
-            services.AddControllersWithViews();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            }).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, config =>{config.AccessDeniedPath = "/Manage/ErrorAcceso";});
+
+
+
+            services.AddControllersWithViews(options=>options.EnableEndpointRouting=false);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,14 +60,14 @@ namespace ProyectoAgusCMNetCore
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
+            app.UseMvc(route =>
             {
-                endpoints.MapControllerRoute(
+                route.MapRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }
