@@ -1,4 +1,8 @@
-﻿<div class="content-wrapper">
+﻿@{ 
+    List<Group> grupos = (List<Group>) ViewData["GRUPOS"];
+}
+
+<div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
         <div class="container-fluid">
@@ -18,7 +22,7 @@
 
     <!-- Main content -->
     <section class="content">
-        <form>
+        <form method="post">
             <div class="row">
                 <div class="col-12" style="width:80%;margin:auto;">
                     <div class="card card-primary">
@@ -34,25 +38,27 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="inputName">Titulo</label>
-                                <input type="text" id="inputName" class="form-control" name="title">
+                                <input type="text" id="inputName" class="form-control" name="titulo">
                             </div>
                             <div class="form-group">
                                 <label for="inputDescription">Descripción del Problema</label>
-                                <textarea id="inputDescription" class="form-control" rows="4" name="ticket_text"></textarea>
+                                <textarea id="inputDescription" class="form-control" rows="4" name="tickettext"></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="inputStatus">Grupo</label>
-                                <select id="inputStatus" class="form-control custom-select">
+                                <select id="inputStatus" class="form-control custom-select" name="grupo">
                                     <option selected disabled>Elija Grupo Destino</option>
-                                    <option>Desarollo</option>
-                                    <option>Soporte</option>
+                                    @foreach (Group g in grupos)
+                                    {
+                                        <option value="@g.idgroup">@g.name</option>
+                                    }
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label for="inputClientCompany">Usuario</label>
-                                <input type="text" id="inputClientCompany" class="form-control" name="user_assigned" readonly value="@Context.User.Identity.Name">
+                                <input type="text" id="inputClientCompany" class="form-control" readonly value="@Context.User.Identity.Name">
                             </div>
-                            <input type="hidden" name="idusuario" value="@Context.User.Claims.FirstOrDefault(x=>x.Type==ClaimTypes.NameIdentifier).value" />
+                            <input type="hidden" name="idusuariocreado" value="@Context.User.FindFirst(ClaimTypes.NameIdentifier).Value" />
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -63,8 +69,8 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <a href="#" class="btn btn-secondary">Cancel</a>
-                    <input type="submit" value="Create new Project" class="btn btn-success float-right">
+                    <a href="#" class="btn btn-secondary">Cancelar</a>
+                    <input type="submit" value="Crear Peticion" class="btn btn-success float-right">
                 </div>
             </div>
         </form>

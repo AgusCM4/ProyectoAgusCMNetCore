@@ -38,8 +38,10 @@ namespace ProyectoAgusCMNetCore.Controllers
                 identity.AddClaim(claimName);
                 Claim claimId =new Claim(ClaimTypes.NameIdentifier, usu.Userid.ToString());
                 Claim claimRole =new Claim(ClaimTypes.Role, usu.Groups);
+                Claim claimAdmin = new Claim("Admin", usu.Admin.ToString());
                 identity.AddClaim(claimId);
                 identity.AddClaim(claimRole);
+                identity.AddClaim(claimAdmin);
                 ClaimsPrincipal userPrincipal = new ClaimsPrincipal(identity);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
                 return RedirectToAction("Index", "Users");
@@ -63,6 +65,13 @@ namespace ProyectoAgusCMNetCore.Controllers
         {
             this.repo.CreateUser(nombre, apellidos, username, usermail, userpass);
             return RedirectToAction("LogIn");
+        }
+
+        public async Task<IActionResult> LogOut()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }

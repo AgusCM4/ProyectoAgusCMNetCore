@@ -1,0 +1,26 @@
+﻿<li class="nav-header">Usuario</li>
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-ticket-alt"></i>
+        <p>
+            Mis Tickets
+            <i class="fas fa-angle-left right"></i>
+        </p>
+    </a>
+
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a asp-controller="Users" asp-action="NuevaPeticion" class="nav-link">
+                <i class="fas fa-plus nav-icon"></i>
+                <p>Crear Nuevo Ticket</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a asp-controller="Users" asp-action="TicketsActivosCreados" class="nav-link">
+                <i class="fas fa-eye nav-icon"></i>
+                <p>Mis Tickets Creados</p>
+            </a>
+        </li>
+    </ul>
+</li>
