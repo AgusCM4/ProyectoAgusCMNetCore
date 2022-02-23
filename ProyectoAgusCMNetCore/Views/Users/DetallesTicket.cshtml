@@ -6,12 +6,6 @@
     List<Comment> comentarios=(List<Comment>) ViewData["COMENTARIOS"];
 }
 
-@section Scripts
-{ 
-
-
-}
-
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
@@ -125,14 +119,16 @@
                                         Asignarme Ticket
                                     </a>
                                 }
-
                             </div>
                         </div>
                     </div>
                     @if (Context.User.IsInRole("2") || Context.User.IsInRole("3"))
                     {
-                        <a class="btn btn-success" asp-action="CompletarTicket" asp-controller="Users" asp-route-idTicket="@Model.idticket">Completar Ticket</a>
-                    }                    
+                        @if (Model.estadoticket != "Completado")
+                        {
+                            <a class="btn btn-success" asp-action="CompletarTicket" asp-controller="Users" asp-route-idTicket="@Model.idticket">Completar Ticket</a>
+                        }
+                    }
                     <!-- /.invoice -->
                 </div><!-- /.col -->
                 
