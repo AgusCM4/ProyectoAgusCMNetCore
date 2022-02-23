@@ -16,5 +16,7 @@ namespace ProyectoAgusCMNetCore.Data
         public DbSet<Group> Groups { get; set; }
 
         public DbSet<Ticket> Tickets { get; set; }
+
+        public DbSet<Comment> Comments { get; set; }
     }
 }

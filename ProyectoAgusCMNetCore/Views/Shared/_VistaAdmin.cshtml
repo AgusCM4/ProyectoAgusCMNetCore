@@ -19,7 +19,7 @@
             </li>
 
             <li class="nav-item">
-                <a href="pages/forms/advanced.html" class="nav-link">
+                <a class="nav-link" asp-controller="Users" asp-action="AdminGrupos">
                     <i class="far fa-circle nav-icon"></i>
                     <p>Administrar Grupos</p>
                 </a>
@@ -28,7 +28,7 @@
     </li>
 
     <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a class="nav-link" asp-controller="Users" asp-action="AdminUsuarios">
             <i class="nav-icon fas fa-user"></i>
             <p>
                 Usuarios
@@ -45,12 +45,12 @@
         </a>
     </li>
 
-    <li class="nav-item">
+    @*<li class="nav-item">
         <a href="#" class="nav-link">
             <i class="nav-icon fas fa-project-diagram"></i>
             <p>
                 Gestion Proyectos
             </p>
         </a>
-    </li>
+    </li>*@
 }

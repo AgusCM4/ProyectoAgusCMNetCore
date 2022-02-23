@@ -37,7 +37,7 @@ namespace ProyectoAgusCMNetCore.Controllers
                 Claim claimName = new Claim(ClaimTypes.Name, usu.Name);
                 identity.AddClaim(claimName);
                 Claim claimId =new Claim(ClaimTypes.NameIdentifier, usu.Userid.ToString());
-                Claim claimRole =new Claim(ClaimTypes.Role, usu.Groups);
+                Claim claimRole =new Claim(ClaimTypes.Role, usu.Groups.ToString());
                 Claim claimAdmin = new Claim("Admin", usu.Admin.ToString());
                 identity.AddClaim(claimId);
                 identity.AddClaim(claimRole);

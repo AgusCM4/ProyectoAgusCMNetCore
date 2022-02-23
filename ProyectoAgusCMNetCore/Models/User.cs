@@ -37,5 +37,14 @@ namespace ProyectoAgusCMNetCore.Models
 
         [Column("groups")]
         public string Groups { get; set; }
+
+        [Column("address")]
+        public string Address { get; set; }
+
+        [Column("phone")]
+        public string Phone { get; set; }
+
+        [Column("profession")]
+        public string Profession { get; set; }
     }
 }

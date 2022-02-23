@@ -12,7 +12,7 @@ namespace ProyectoAgusCMNetCore.Models
     {
         [Key]
         [Column("id_group")]
-        public int idgroup { get; set; }
+        public string idgroup { get; set; }
 
         [Column("name")]
         public string name { get; set; }

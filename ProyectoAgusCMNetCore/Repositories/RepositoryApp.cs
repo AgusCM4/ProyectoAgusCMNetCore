@@ -68,16 +68,31 @@ namespace ProyectoAgusCMNetCore.Repositories
             return id + 1;
         }
 
-        private int GetLastGroupId()
+        private string GetLastGroupId()
         {
             var consulta = (from datos in this.context.Groups select datos).OrderBy(x => x.idgroup).LastOrDefault();
+
+            if (consulta == null)
+            {
+                return "1";
+            }
+
+            int id = int.Parse(consulta.idgroup);
+
+            int resultado = id + 1;
+
+            return resultado.ToString();
+        }
+        private int GetLastCommentId()
+        {
+            var consulta = (from datos in this.context.Comments select datos).OrderBy(x => x.IdComentario).LastOrDefault();
 
             if (consulta == null)
             {
                 return 1;
             }
 
-            int id = consulta.idgroup;
+            int id = consulta.IdComentario;
 
             return id + 1;
         }
@@ -91,7 +106,7 @@ namespace ProyectoAgusCMNetCore.Repositories
 
         public List<Group> GetGroups()
         {
-            var consulta = from datos in this.context.Groups where datos.idgroup != 1 select datos;
+            var consulta = from datos in this.context.Groups select datos;
 
             return consulta.ToList();
         }
@@ -106,6 +121,7 @@ namespace ProyectoAgusCMNetCore.Repositories
             ticket.usuarioasignado = 0;
             ticket.grupoasingado = grupo;
             ticket.fechacreacion = DateTime.Now;
+            ticket.estadoticket = "Sin Asignar";
 
             this.context.Tickets.Add(ticket);
             this.context.SaveChanges();            
@@ -132,6 +148,95 @@ namespace ProyectoAgusCMNetCore.Repositories
             var consulta = from datos in this.context.Tickets where datos.idticket == idticket select datos;
 
             return consulta.FirstOrDefault();
+        }
+
+        public List<Ticket> GetTicketsSoporte()
+        {
+            var consulta = from datos in this.context.Tickets where datos.grupoasingado == 3 && datos.usuarioasignado==0 select datos;
+            return consulta.ToList();
+        }
+
+        public List<Ticket> GetTicketsDesarrollo()
+        {
+            var consulta = from datos in this.context.Tickets where datos.grupoasingado == 2 && datos.usuarioasignado == 0 select datos;
+            return consulta.ToList();
+        }
+
+        public User FindUser(int id)
+        {
+            var consulta = from datos in this.context.Users where datos.Userid == id select datos;
+
+            return consulta.FirstOrDefault();
+        }
+
+        public void AsignMeTicket(int idUser, int idTicket)
+        {
+            Ticket t = FindTicket(idTicket);
+            t.usuarioasignado = idUser;
+            t.estadoticket = "En proceso";
+            this.context.SaveChanges();
+        }
+
+        public List<Ticket> GetAssignedTickets(int idUser)
+        {
+            var consulta = from datos in this.context.Tickets where datos.usuarioasignado == idUser select datos;
+
+            return consulta.ToList();
+        }
+
+        public void CreateComment(int idTicket, string mensaje, string User)
+        {
+            Comment com = new Comment();
+            com.IdComentario = GetLastCommentId();
+            com.idTicket = idTicket;
+            com.Comentario = mensaje;
+            com.ComentarioUsuario = User;
+            com.FechaComentario = DateTime.Now;
+
+            this.context.Comments.Add(com);
+
+            this.context.SaveChanges();
+        }
+
+        public List<Comment> GetComments(int idTicket)
+        {
+            var consulta = from datos in this.context.Comments where datos.idTicket == idTicket select datos;
+
+            return consulta.ToList();
+        }
+
+        public void CompleteTicket(int idTicket,string User)
+        {
+            Ticket t = FindTicket(idTicket);
+            t.estadoticket = "Completado";
+
+            CreateComment(t.idticket, "Completado",User);
+
+            this.context.SaveChanges();
+        }
+
+        public List<User> GetUsersGroup(string idgroup)
+        {
+            var consulta = from datos in this.context.Users where datos.Groups == idgroup select datos;
+
+            return consulta.ToList();
+        }
+
+        public string GetNameGroup(string idgroup)
+        {
+            var consulta = from datos in this.context.Groups where datos.idgroup == idgroup select datos.name;
+
+            return consulta.FirstOrDefault().ToString();
+        }
+
+        public void EditUser(int iduser, string address, string phone, string profesion)
+        {
+            User usu = FindUser(iduser);
+            usu.Address = address;
+            usu.Phone = phone;
+            usu.Profession = profesion;
+
+            this.context.SaveChanges();
         }
     }
 }

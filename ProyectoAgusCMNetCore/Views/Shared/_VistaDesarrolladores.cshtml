@@ -1,1 +1,47 @@
-﻿
+﻿@if (Context.User.IsInRole("2"))
+{
+    <li class="nav-header">UTILIDADES DESARROLLADOR</li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>
+                Tickets Desarrollo
+                <i class="fas fa-angle-left right"></i>
+            </p>
+        </a>
+
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a asp-controller="Desarrolladores" asp-action="ConsultaTickets" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Consultar Tickets</p>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Users" asp-action="AdminGrupos">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Mis Tickets Asignados</p>
+                </a>
+            </li>
+        </ul>
+    </li>
+    @*<li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-project-diagram"></i>
+            <p>
+                Proyectos
+                <i class="fas fa-angle-left right"></i>
+            </p>
+        </a>
+
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a asp-controller="Users" asp-action="NuevoGrupo" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Mis Proyectos</p>
+                </a>
+            </li>
+        </ul>
+    </li>*@
+}
