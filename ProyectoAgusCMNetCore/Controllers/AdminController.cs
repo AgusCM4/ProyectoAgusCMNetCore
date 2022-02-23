@@ -26,5 +26,26 @@ namespace ProyectoAgusCMNetCore.Controllers
 
             return View(users);
         }
+
+        public IActionResult EliminarUsuarios(int idUser)
+        {
+            this.repo.DeleteUser(idUser);
+
+            return RedirectToAction("AdminUsuarios","Users");
+        }
+
+        public IActionResult EliminarGrupos(string idgrupo)
+        {
+            this.repo.DeleteGroup(idgrupo);
+
+            return RedirectToAction("AdminGrupos", "Users");
+        }
+
+        public IActionResult VistaTickets()
+        {
+            List<Ticket> tickets = this.repo.GetTickets();
+
+            return View(tickets);
+        }
     }
 }

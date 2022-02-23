@@ -156,6 +156,12 @@ namespace ProyectoAgusCMNetCore.Repositories
             return consulta.ToList();
         }
 
+        public List<Ticket> GetTickets()
+        {
+            var consulta = from datos in this.context.Tickets select datos;
+            return consulta.ToList();
+        }
+
         public List<Ticket> GetTicketsDesarrollo()
         {
             var consulta = from datos in this.context.Tickets where datos.grupoasingado == 2 && datos.usuarioasignado == 0 select datos;
@@ -235,6 +241,31 @@ namespace ProyectoAgusCMNetCore.Repositories
             usu.Address = address;
             usu.Phone = phone;
             usu.Profession = profesion;
+
+            this.context.SaveChanges();
+        }
+
+        public void DeleteUser(int iduser)
+        {
+            User usu = FindUser(iduser);
+
+            this.context.Users.Remove(usu);
+
+            this.context.SaveChanges();
+        }
+
+        public Group FindGroup(String idGroup)
+        {
+            var consulta = from datos in this.context.Groups where datos.idgroup == idGroup select datos;
+
+            return consulta.FirstOrDefault();
+        }
+
+        public void DeleteGroup(string idgroup)
+        {
+            Group g = FindGroup(idgroup);
+
+            this.context.Groups.Remove(g);
 
             this.context.SaveChanges();
         }

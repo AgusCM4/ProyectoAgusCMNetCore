@@ -118,14 +118,21 @@
                         <!-- this row will not appear when printing -->
                         <div class="row no-print">
                             <div class="col-12">
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-comment"></i> Añadir Comentario</button>
-                                <a class="btn btn-warning float-right" style="margin-right: 5px;" asp-action="AsignarmeTicket" asp-controller="Users" asp-route-idticket="@Model.idticket">
-                                    Asignarme Ticket
-                                </a>
+                                @if (Context.User.IsInRole("2") || Context.User.IsInRole("3"))
+                                {
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-comment"></i> Añadir Comentario</button>
+                                    <a class="btn btn-warning float-right" style="margin-right: 5px;" asp-action="AsignarmeTicket" asp-controller="Users" asp-route-idticket="@Model.idticket">
+                                        Asignarme Ticket
+                                    </a>
+                                }
+
                             </div>
                         </div>
                     </div>
-                    <a class="btn btn-success" asp-action="CompletarTicket" asp-controller="Users" asp-route-idTicket="@Model.idticket">Completar Ticket</a>
+                    @if (Context.User.IsInRole("2") || Context.User.IsInRole("3"))
+                    {
+                        <a class="btn btn-success" asp-action="CompletarTicket" asp-controller="Users" asp-route-idTicket="@Model.idticket">Completar Ticket</a>
+                    }                    
                     <!-- /.invoice -->
                 </div><!-- /.col -->
                 
