@@ -7,5 +7,6 @@ namespace ProyectoAgusCMNetCore.Repositories
 {
     interface IRepositoryApp
     {
+
     }
 }
