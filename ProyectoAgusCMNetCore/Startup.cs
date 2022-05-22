@@ -28,16 +28,13 @@ namespace ProyectoAgusCMNetCore
         public void ConfigureServices(IServiceCollection services)
         {
             string urlApi = this.Configuration.GetValue<string>("ApiUrls:ApiProyectoAgus");
-            ServiceApiProyecto serviceApiEmpleados = new ServiceApiProyecto(urlApi);
+            ServiceApiProyecto serviceApiEmpleados = new ServiceApiProyecto(urlApi, this.Configuration);
             services.AddTransient<ServiceApiProyecto>(x => serviceApiEmpleados);
             services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme =
-                CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme =
-                CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme =
-                CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             }).AddCookie();
             services.AddControllersWithViews(options => options.EnableEndpointRouting = false);
         }

@@ -1,12 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NugetProyectoAgus;
 using ProyectoAgusCMNetCore.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,11 +19,13 @@ namespace ProyectoAgusCMNetCore.Services
     {
         private string UrlApi;
         private MediaTypeWithQualityHeaderValue Header;
+        private IConfiguration configuration1;
 
-        public ServiceApiProyecto(string urlapi)
+        public ServiceApiProyecto(string urlapi, IConfiguration configuration)
         {
             this.UrlApi = urlapi;
             this.Header = new MediaTypeWithQualityHeaderValue("application/json");
+            configuration1 = configuration;
         }
 
         public async Task<string> GetTokenAsync(string username, string password)
@@ -335,23 +340,26 @@ namespace ProyectoAgusCMNetCore.Services
 
         public async Task SendMail(string email, string subject, string body)
         {
-            string urlEmail = "https://prod-42.westeurope.logic.azure.com:443/workflows/35e48f69eeae4e2e90e20f301142aeac/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LYNWZKOmO4d7Z2eQG7sBVxl2XdU_DdcV8r8MXstOKqE";
-            using (HttpClient client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(this.Header);
-                EmailModel emailmodel = new EmailModel()
-                {
-                    Email=email,
-                    Subject=subject,
-                    Body=body
-                };
-                var json = JsonConvert.SerializeObject(emailmodel);
-                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-                HttpResponseMessage response = await client.PostAsync(urlEmail, content);
-            }
+            string user = this.configuration1.GetValue<string>("AWSMailCredentials:UserName");
+            string password = this.configuration1.GetValue<string>("AWSMailCredentials:Password");
+            string server = this.configuration1.GetValue<string>("AWSMailCredentials:Server");
+            MailMessage message = new MailMessage();
+            //CUANDO UTILIZAMOS FROM, ES LA CUENTA QUE TENEMOS 
+            //PUESTA EN NUESTRO SERVICIO MAIL SES
+            message.From = new MailAddress("agustincampostajamar@gmail.com");
+            message.To.Add(new MailAddress(email));
+            message.Subject = subject;
+            message.Body = body;
+            //CREDENCIALES DE AWS SES
+            NetworkCredential credentials = new NetworkCredential(user, password);
+            //CONFIGURAMOS EL SMTP
+            SmtpClient smtpClient = new SmtpClient();
+            smtpClient.Host = server;
+            smtpClient.Port = 25;
+            smtpClient.EnableSsl = true;
+            smtpClient.UseDefaultCredentials = true;
+            smtpClient.Credentials = credentials;
+            smtpClient.Send(message);
         }
-
-
     }
 }
