@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NugetProyectoAgus;
 using ProyectoAgusCMNetCore.Filters;
-using ProyectoAgusCMNetCore.Models;
-using ProyectoAgusCMNetCore.Repositories;
-using System;
+using ProyectoAgusCMNetCore.Services;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ProyectoAgusCMNetCore.Controllers
@@ -13,11 +12,11 @@ namespace ProyectoAgusCMNetCore.Controllers
     [AuthorizeUsers]
     public class UsersController : Controller
     {
-        private RepositoryApp repo;
+        private ServiceApiProyecto service;
 
-        public UsersController(RepositoryApp repo)
+        public UsersController(ServiceApiProyecto service)
         {
-            this.repo = repo;
+            this.service = service;
         }
 
         public IActionResult Index()
@@ -25,19 +24,22 @@ namespace ProyectoAgusCMNetCore.Controllers
             return View();
         }
 
-        public IActionResult NuevaPeticion()
+        public async Task<IActionResult> NuevaPeticion()
         {
-            List<Group> grupos = this.repo.GetGroups();
-
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            List<NugetProyectoAgus.Group> grupos = await this.service.GetGroups(token);
             ViewData["GRUPOS"] = grupos;
             return View();
         }
 
         [HttpPost]
-        public IActionResult NuevaPeticion(string titulo, string tickettext, int grupo, int idusuariocreado)
+        public async Task<IActionResult> NuevaPeticion(string titulo, string tickettext, int grupo, int idusuariocreado)
         {
-            this.repo.SaveTicket(titulo, tickettext, idusuariocreado, grupo);
-            
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            await this.service.SaveTicket(token, titulo, tickettext, idusuariocreado, grupo);
+
+            User creador = await this.service.FindUser(token, idusuariocreado);
+            await this.service.SendMail("agustincampostajamar@gmail.com","Nueva Petición " + titulo, tickettext + " Usuario Creado: "+creador.Name);
             return RedirectToAction("Index");
         }
 
@@ -47,94 +49,98 @@ namespace ProyectoAgusCMNetCore.Controllers
         }
 
         [HttpPost]
-        public IActionResult NuevoGrupo(string nombre)
+        public async Task<IActionResult> NuevoGrupo(string nombre)
         {
-            this.repo.CreateGroup(nombre);
-
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            await this.service.CreateGroup(token,nombre);
             return RedirectToAction("Index");
         }
 
 
-        public IActionResult TicketsActivosCreados()
+        public async Task<IActionResult> TicketsActivosCreados()
         {
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
             int iduser = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-
-            List<Ticket> tickets = this.repo.GetCreatedTickets(iduser);
-
+            List<Ticket> tickets = await this.service.GetCreatedTickets(token,iduser);
             return View(tickets);
         }
 
-        public IActionResult DetallesTicket(int idticket)
+        public async Task<IActionResult> DetallesTicket(int idticket)
         {
-            Ticket t = this.repo.FindTicket(idticket);
-
-            User usuariocreado = this.repo.FindUser(t.usuariocreado);
-            User usuarioasignado = this.repo.FindUser(t.usuarioasignado);
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            Ticket t = await this.service.FindTicket(token,idticket);
+            User usuariocreado = await this.service.FindUser(token,t.usuariocreado);
+            User usuarioasignado = await this.service.FindUser(token, t.usuarioasignado);
 
             ViewData["USUARIOCREADO"] = usuariocreado;
             ViewData["USUARIOASIGNADO"] = usuarioasignado;
-            ViewData["COMENTARIOS"] = this.repo.GetComments(idticket);
+            ViewData["COMENTARIOS"] = await this.service.GetComments(token,idticket);
 
             return View(t);
         }
 
         [HttpPost]
-        public IActionResult DetallesTicket(string messagetext, int idTicket)
+        public async Task<IActionResult> DetallesTicket(string messagetext, int idTicket)
         {
-            this.repo.CreateComment(idTicket,messagetext,HttpContext.User.Identity.Name);
-
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            await this.service.CreateComment(token,idTicket,messagetext,HttpContext.User.Identity.Name);
             return RedirectToAction("DetallesTicket", "Users", new { idTicket = idTicket });
         }
 
-        public IActionResult AdminGrupos()
+        public async Task<IActionResult> AdminGrupos()
         {
-            List<Group> grupos = this.repo.GetGroups();
-
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            List<NugetProyectoAgus.Group> grupos = await this.service.GetGroups(token);
             return View(grupos);
         }
 
-        public IActionResult AdminUsuarios()
+        public async Task<IActionResult> AdminUsuarios()
         {
-            List<User> listadousers = this.repo.GetUsers();
-
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            List<User> listadousers = await this.service.GetUsers(token);
             return View(listadousers);
         }
 
-        public IActionResult AsignarmeTicket(int idticket)
+        public async Task<IActionResult> AsignarmeTicket(int idticket)
         {
-            this.repo.AsignMeTicket(int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value), idticket);
-
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            await this.service.AssignMeTicket(token,int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value), idticket);
             return RedirectToAction("DetallesTicket", "Users", new { idticket = idticket });
         }
 
-        public IActionResult MisTicketsAsignados()
+        public async Task<IActionResult> MisTicketsAsignados()
         {
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
             int iduser = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-
-            List<Ticket> tickets = this.repo.GetAssignedTickets(iduser);
-
+            List<Ticket> tickets = await this.service.GetAssignedTickets(token,iduser);
             return View(tickets);
         }
 
-        public IActionResult CompletarTicket(int idTicket)
+        public async Task<IActionResult> CompletarTicket(int idTicket)
         {
-            this.repo.CompleteTicket(idTicket,HttpContext.User.Identity.Name);
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            await this.service.CompleteTicket(token,idTicket,HttpContext.User.Identity.Name);
+
+            Ticket t = await this.service.FindTicket(token, idTicket);
+
+            User usercreated = await this.service.FindUser(token, t.usuariocreado);
+
+            await this.service.SendMail(usercreated.Email, "PETICION REALIZADA " + t.idticket, t.textoticket);
 
             return RedirectToAction("MisTicketsAsignados", "Users");
         }
 
-        public IActionResult PerfilUsuario(int? iduser)
+        public async Task<IActionResult> PerfilUsuario(int? iduser)
         {
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
             if (iduser!=null)
             {
-                User usu = this.repo.FindUser(iduser.Value);
-
+                User usu = await this.service.FindUser(token,iduser.Value);
                 return View(usu);
             }
             else
             {
-                User usu = this.repo.FindUser(int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value));
-
+                User usu = await this.service.FindUser(token,int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value));
                 return View(usu);
             }           
         }
@@ -145,10 +151,10 @@ namespace ProyectoAgusCMNetCore.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditarPerfil(string direccion, string phone, string profesion)
+        public async Task<IActionResult> EditarPerfil(string direccion, string phone, string profesion)
         {
-            this.repo.EditUser(int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value), direccion, phone, profesion);
-
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            await this.service.EditUser(token,int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value), direccion, phone, profesion);
             return RedirectToAction("PerfilUsuario", "Users");
         }
 
