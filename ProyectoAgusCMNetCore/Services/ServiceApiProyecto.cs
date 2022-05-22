@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Amazon;
+using Amazon.SimpleEmail;
+using Amazon.SimpleEmail.Model;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NugetProyectoAgus;
@@ -42,7 +45,7 @@ namespace ProyectoAgusCMNetCore.Services
                 };
                 string json = JsonConvert.SerializeObject(model);
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-                string request = "/auth/login";
+                string request = "/Prod/auth/login";
                 HttpResponseMessage response = await client.PostAsync(request, content);
                 if (response.IsSuccessStatusCode)
                 {
@@ -83,70 +86,70 @@ namespace ProyectoAgusCMNetCore.Services
 
         public async Task<User> PerfilUser(string token)
         {
-            string request = "/PerfilUser";
+            string request = "/Prod/PerfilUser";
             User usu = await this.CallApiAsync<User>(request, token);
             return usu;
         }
 
         public async Task<List<User>> GetUsers(string token)
         {
-            string request = "/GetUsers";
+            string request = "/Prod/GetUsers";
             List<User> usuarios = await this.CallApiAsync<List<User>>(request, token);
             return usuarios;
         }
 
         public async Task<List<Group>> GetGroups(string token)
         {
-            string request = "/GetGroups";
+            string request = "/Prod/GetGroups";
             List<Group> grupos = await this.CallApiAsync<List<Group>>(request, token);
             return grupos;
         }
 
         public async Task<List<Ticket>> GetCreatedTickets(string token, int idticket)
         {
-            string request = "/GetCreatedTickets/"+idticket;
+            string request = "/Prod/GetCreatedTickets/" + idticket;
             List<Ticket> tickets = await this.CallApiAsync<List<Ticket>>(request, token);
             return tickets;
         }
 
         public async Task<Ticket> FindTicket(string token, int idticket)
         {
-            string request = "/FindTicket/"+idticket;
+            string request = "/Prod/FindTicket/" + idticket;
             Ticket tic = await this.CallApiAsync<Ticket>(request, token);
             return tic;
         }
 
         public async Task<List<Ticket>> GetTicketSoporte(string token)
         {
-            string request = "/GetTicketsSoporte";
+            string request = "/Prod/GetTicketsSoporte";
             List<Ticket> tickets = await this.CallApiAsync<List<Ticket>>(request, token);
             return tickets;
         }
 
         public async Task<List<Ticket>> GetTickets(string token)
         {
-            string request = "/GetTickets";
+            string request = "/Prod/GetTickets";
             List<Ticket> tickets = await this.CallApiAsync<List<Ticket>>(request, token);
             return tickets;
         }
 
         public async Task<List<Ticket>> GetTicketsDesarrollo(string token)
         {
-            string request = "/GetTicketsDesarrollo";
+            string request = "/Prod/GetTicketsDesarrollo";
             List<Ticket> tickets = await this.CallApiAsync<List<Ticket>>(request, token);
             return tickets;
         }
 
         public async Task<User> FindUser(string token, int iduser)
         {
-            string request = "/FindUser/"+iduser;
+            string request = "/Prod/FindUser/" + iduser;
             User usu = await this.CallApiAsync<User>(request, token);
             return usu;
         }
 
         public async Task AssignMeTicket(string token, int iduser, int idticket)
         {
-            string request = "/AssignMeTicket/" + iduser + "/" + idticket;
+            string request = "/Prod/AsignMeTicket/" + iduser + "/" + idticket;
             using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri(this.UrlApi);
@@ -159,7 +162,7 @@ namespace ProyectoAgusCMNetCore.Services
 
         public async Task CompleteTicket(string token, int idticket, string user)
         {
-            string request = "/CompleteTicket/" + idticket + "/" + user;
+            string request = "/Prod/CompleteTicket/" + idticket + "/" + user;
             using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri(this.UrlApi);
@@ -172,35 +175,35 @@ namespace ProyectoAgusCMNetCore.Services
 
         public async Task<List<Ticket>> GetAssignedTickets(string token, int iduser)
         {
-            string request = "/GetAssignedTickets/"+iduser;
+            string request = "/Prod/GetAssignedTickets/" + iduser;
             List<Ticket> usu = await this.CallApiAsync<List<Ticket>>(request, token);
             return usu;
         }
 
         public async Task<List<Comment>> GetComments(string token, int idticket)
         {
-            string request = "/GetCommments/"+idticket;
+            string request = "/Prod/GetCommments/" + idticket;
             List<Comment> comentarios = await this.CallApiAsync<List<Comment>>(request, token);
             return comentarios;
         }
 
         public async Task<List<User>> GetUsersGroup(string token, string idgroup)
         {
-            string request = "/GetUsersGroup/"+idgroup;
+            string request = "/Prod/GetUsersGroup/" + idgroup;
             List<User> users = await this.CallApiAsync<List<User>>(request, token);
             return users;
         }
 
         public async Task<string> GetNameGroup(string token, string idgroup)
         {
-            string request = "/GetNameGroup/"+idgroup;
+            string request = "/Prod/GetNameGroup/" + idgroup;
             string name = await this.CallApiAsync<string>(request, token);
             return name;
         }
 
         public async Task<Group> FindGroup(string token, string idgroup)
         {
-            string request = "/FindGroup/"+idgroup;
+            string request = "/Prod/FindGroup/" + idgroup;
             Group gru = await this.CallApiAsync<Group>(request, token);
             return gru;
         }
@@ -209,7 +212,7 @@ namespace ProyectoAgusCMNetCore.Services
         {
             using (HttpClient client = new HttpClient())
             {
-                string request = "/CreateUser";
+                string request = "/Prod/CreateUser";
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
@@ -231,7 +234,7 @@ namespace ProyectoAgusCMNetCore.Services
         {
             using (HttpClient client = new HttpClient())
             {
-                string request = "/CreateUser";
+                string request = "/Prod/CreateUser";
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
@@ -250,7 +253,7 @@ namespace ProyectoAgusCMNetCore.Services
         {
             using (HttpClient client = new HttpClient())
             {
-                string request = "/CreateUser";
+                string request = "/Prod/CreateUser";
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
@@ -271,7 +274,7 @@ namespace ProyectoAgusCMNetCore.Services
         {
             using (HttpClient client = new HttpClient())
             {
-                string request = "/SaveTicket";
+                string request = "/Prod/SaveTicket";
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
@@ -294,7 +297,7 @@ namespace ProyectoAgusCMNetCore.Services
         {
             using (HttpClient client = new HttpClient())
             {
-                string request = "/EditUser";
+                string request = "/Prod/EditUser";
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
@@ -316,7 +319,7 @@ namespace ProyectoAgusCMNetCore.Services
         {
             using (HttpClient client = new HttpClient())
             {
-                string request = "/DeleteUser/"+iduser;
+                string request = "/Prod/DeleteUser/" + iduser;
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
@@ -329,7 +332,7 @@ namespace ProyectoAgusCMNetCore.Services
         {
             using (HttpClient client = new HttpClient())
             {
-                string request = "/DeleteGroup/" + idgroup;
+                string request = "/Prod/DeleteGroup/" + idgroup;
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
@@ -340,26 +343,21 @@ namespace ProyectoAgusCMNetCore.Services
 
         public async Task SendMail(string email, string subject, string body)
         {
-            string user = this.configuration1.GetValue<string>("AWSMailCredentials:UserName");
-            string password = this.configuration1.GetValue<string>("AWSMailCredentials:Password");
-            string server = this.configuration1.GetValue<string>("AWSMailCredentials:Server");
-            MailMessage message = new MailMessage();
-            //CUANDO UTILIZAMOS FROM, ES LA CUENTA QUE TENEMOS 
-            //PUESTA EN NUESTRO SERVICIO MAIL SES
-            message.From = new MailAddress("agustincampostajamar@gmail.com");
-            message.To.Add(new MailAddress(email));
-            message.Subject = subject;
-            message.Body = body;
-            //CREDENCIALES DE AWS SES
-            NetworkCredential credentials = new NetworkCredential(user, password);
-            //CONFIGURAMOS EL SMTP
-            SmtpClient smtpClient = new SmtpClient();
-            smtpClient.Host = server;
-            smtpClient.Port = 25;
-            smtpClient.EnableSsl = true;
-            smtpClient.UseDefaultCredentials = true;
-            smtpClient.Credentials = credentials;
-            smtpClient.Send(message);
+            var client = new AmazonSimpleEmailServiceClient(RegionEndpoint.USEast1);
+            Destination destination = new Destination();
+            destination.ToAddresses = new List<string> { email };
+            Message message = new Message();
+            message.Subject = new Content(subject);
+            Body cuerpo = new Body();
+            cuerpo.Html = new Content(body);
+            cuerpo.Text = new Content(body);
+            message.Body = cuerpo;
+            SendEmailRequest request = new SendEmailRequest();
+            //QUIEN ENVIA EL MENSAJE (NUESTRO USER VERIFIED EN SERVICIO SES)
+            request.Source = "agustincampostajamar@gmail.com";
+            request.Destination = destination;
+            request.Message = message;
+            SendEmailResponse response = await client.SendEmailAsync(request);           
         }
     }
 }
