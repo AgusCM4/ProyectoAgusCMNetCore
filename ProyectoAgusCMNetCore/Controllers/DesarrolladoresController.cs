@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NugetProyectoAgus;
 using ProyectoAgusCMNetCore.Models;
 using ProyectoAgusCMNetCore.Repositories;
+using ProyectoAgusCMNetCore.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +12,17 @@ namespace ProyectoAgusCMNetCore.Controllers
 {
     public class DesarrolladoresController : Controller
     {
-        private RepositoryApp repo;
+        private ServiceApiProyecto service;
 
-        public DesarrolladoresController(RepositoryApp repo)
+        public DesarrolladoresController(ServiceApiProyecto service)
         {
-            this.repo = repo;
+            this.service = service;
         }
 
-        public IActionResult ConsultaTickets()
+        public async Task<IActionResult> ConsultaTickets()
         {
-            List<Ticket> ticketsdesarrollo = this.repo.GetTicketsDesarrollo();
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            List<Ticket> ticketsdesarrollo = await this.service.GetTicketsDesarrollo(token);
             return View(ticketsdesarrollo);
         }
     }

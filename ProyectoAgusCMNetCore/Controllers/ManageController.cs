@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using NugetProyectoAgus;
 using ProyectoAgusCMNetCore.Models;
 using ProyectoAgusCMNetCore.Repositories;
+using ProyectoAgusCMNetCore.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +15,11 @@ namespace ProyectoAgusCMNetCore.Controllers
 {
     public class ManageController : Controller
     {
-        private RepositoryApp repo;
+        private ServiceApiProyecto service;
 
-        public ManageController(RepositoryApp repo)
+        public ManageController(ServiceApiProyecto service)
         {
-            this.repo = repo;
+            this.service = service;
         }
 
 
@@ -29,41 +31,41 @@ namespace ProyectoAgusCMNetCore.Controllers
         [HttpPost]
         public async Task<IActionResult> LogIn(string username, string password)
         {
-            User usu = this.repo.ExisteUser(username,password);
-
-            if (usu != null)
+            string token = await this.service.GetTokenAsync(username, password);
+            if (token == null)
             {
-                ClaimsIdentity identity =new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
-                Claim claimName = new Claim(ClaimTypes.Name, usu.Name);
-                identity.AddClaim(claimName);
-                Claim claimId =new Claim(ClaimTypes.NameIdentifier, usu.Userid.ToString());
-                Claim claimRole =new Claim(ClaimTypes.Role, usu.Groups.ToString());
-                Claim claimAdmin = new Claim("Admin", usu.Admin.ToString());
-                identity.AddClaim(claimId);
-                identity.AddClaim(claimRole);
-                identity.AddClaim(claimAdmin);
-                ClaimsPrincipal userPrincipal = new ClaimsPrincipal(identity);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
-                return RedirectToAction("Index", "Users");
+                ViewData["MENSAJE"] = "Usuario/Password incorrectos";
+                return View();
             }
             else
             {
-                ViewData["MENSAJE"] = "Usuario/Password incorrectos";
+                //UNA VEZ QUE TENEMOS EL TOKEN, RECUPERAMOS EL PERFIL DEL EMPLEADO
+                //Y ALMACENAMOS LOS DATOS DEL USUARIO DE FORMA PERSONALIZADA
+                User user = await this.service.PerfilUser(token);
+                ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+                identity.AddClaim(new Claim(ClaimTypes.Name, user.LastName));
+                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Userid.ToString()));
+                identity.AddClaim(new Claim(ClaimTypes.Role, user.Groups));
+                identity.AddClaim(new Claim("Admin", user.Admin.ToString()));
+                identity.AddClaim(new Claim("TOKEN", token));
+                ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        ExpiresUtc = DateTime.UtcNow.AddMinutes(30)
+                    });
+                return RedirectToAction("Index", "Users");
             }
-            return View();
-
-
         }
-
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Register(string nombre, string apellidos,string username, string usermail, string userpass)
+        public async Task<IActionResult> Register(string nombre, string apellidos, string username, string usermail, string userpass)
         {
-            this.repo.CreateUser(nombre, apellidos, username, usermail, userpass);
+            await this.service.CreateUser(nombre, apellidos, username, usermail, userpass);
             return RedirectToAction("LogIn");
         }
 

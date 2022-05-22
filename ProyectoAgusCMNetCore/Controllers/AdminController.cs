@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NugetProyectoAgus;
 using ProyectoAgusCMNetCore.Models;
 using ProyectoAgusCMNetCore.Repositories;
+using ProyectoAgusCMNetCore.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,41 +12,42 @@ namespace ProyectoAgusCMNetCore.Controllers
 {
     public class AdminController : Controller
     {
-        private RepositoryApp repo;
+        private ServiceApiProyecto service;
 
-        public AdminController(RepositoryApp repo)
+        public AdminController(ServiceApiProyecto service)
         {
-            this.repo = repo;
+            this.service = service;
         }
 
-        public IActionResult UsuariosPorGrupo(string idGrupo)
+        public async Task<IActionResult> UsuariosPorGrupo(string idGrupo)
         {
-            List<User> users = this.repo.GetUsersGroup(idGrupo);
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            List<User> users = await this.service.GetUsersGroup(token,idGrupo);
 
-            string nombregrupo = this.repo.GetNameGroup(idGrupo);
+            string nombregrupo = await this.service.GetNameGroup(token,idGrupo);
             ViewData["GRUPO"] = nombregrupo;            
 
             return View(users);
         }
 
-        public IActionResult EliminarUsuarios(int idUser)
+        public async Task<IActionResult> EliminarUsuarios(int idUser)
         {
-            this.repo.DeleteUser(idUser);
-
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            await this.service.DeleteUser(token,idUser);
             return RedirectToAction("AdminUsuarios","Users");
         }
 
-        public IActionResult EliminarGrupos(string idgrupo)
+        public async Task<IActionResult> EliminarGrupos(string idgrupo)
         {
-            this.repo.DeleteGroup(idgrupo);
-
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            await this.service.DeleteGroup(token, idgrupo);
             return RedirectToAction("AdminGrupos", "Users");
         }
 
-        public IActionResult VistaTickets()
+        public async Task<IActionResult> VistaTickets()
         {
-            List<Ticket> tickets = this.repo.GetTickets();
-
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            List<Ticket> tickets = await this.service.GetTickets(token);
             return View(tickets);
         }
     }
